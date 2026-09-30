@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
+const db = require("./config/database");
 
 const blogRoutes = require("./routes/blogs");
 const authRoutes = require("./routes/auth");
@@ -62,9 +63,21 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    message: "KSL API is healthy",
+  db.query("SELECT 1 AS database_ok", (err, rows) => {
+    if (err) {
+      console.error("Health database check failed:", err.message);
+      return res.status(503).json({
+        success: false,
+        api: "ok",
+        database: "error",
+      });
+    }
+
+    return res.json({
+      success: true,
+      api: "ok",
+      database: rows?.[0]?.database_ok === 1 ? "ok" : "error",
+    });
   });
 });
 

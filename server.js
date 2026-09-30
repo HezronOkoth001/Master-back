@@ -10,9 +10,10 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL =
+const FRONTEND_URL = (
   process.env.FRONTEND_URL ||
-  "https://master-kenyan-sign-language-x4v8.vercel.app";
+  "https://master-kenyan-sign-language-x4v8.vercel.app"
+).replace(/\/+$/, "");
 
 app.disable("x-powered-by");
 
@@ -21,7 +22,13 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: (origin, callback) => {
+    if (!origin || origin === FRONTEND_URL) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("CORS origin not allowed"));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -49,7 +56,15 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
   res.json({
+    success: true,
     message: "Kenyan Sign Language backend is running!",
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "KSL API is healthy",
   });
 });
 

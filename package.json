@@ -25,5 +25,8 @@
     "mysql2": "^3.24.4",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
